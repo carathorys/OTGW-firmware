@@ -1,7 +1,7 @@
 /*
 ***************************************************************************  
 **  Program  : settingsStuff
-**  Version  : v2.0.0-alpha.441
+**  Version  : v2.0.0-alpha.442
 **
 **  Copyright (c) 2021-2026 Robert van den Breemen
 **     based on Framework ESP8266 from Willem Aandewiel
@@ -353,6 +353,7 @@ void writeSettings(bool show)
   writeJsonBoolKV(file, F("SATdhwenabled"), settings.sat.bDhwEnabled);
   writeJsonBoolKV(file, F("SATdhwenable"), settings.sat.bDhwEnable);
   writeJsonBoolKV(file, F("SATpushsetpoint"), settings.sat.bPushSetpoint);
+  writeJsonBoolKV(file, F("SATfollowthermostat"), settings.sat.bFollowThermostat);  // TASK-1259
   writeJsonFloatKV(file, F("SATflameoffset"), settings.sat.fFlameOffOffset);
   writeJsonBoolKV(file, F("SATwindowdetect"), settings.sat.bWindowDetection);
   writeJsonIntKV(file, F("SATwindowminsec"), settings.sat.iWindowMinOpenSec);
@@ -1031,6 +1032,7 @@ void updateSetting(const char *field, const char *newValue)
     }
   }
   else if (strcasecmp_P(field, PSTR("SATpushsetpoint")) == 0)   settings.sat.bPushSetpoint = EVALBOOLEAN(newValue);
+  else if (strcasecmp_P(field, PSTR("SATfollowthermostat")) == 0) settings.sat.bFollowThermostat = EVALBOOLEAN(newValue);  // TASK-1259
   else if (strcasecmp_P(field, PSTR("SATflameoffset")) == 0)    settings.sat.fFlameOffOffset = clampSettingFloat(newValue, settings.sat.fFlameOffOffset, 0.0f, 30.0f);
   else if (strcasecmp_P(field, PSTR("SATwindowdetect")) == 0)  settings.sat.bWindowDetection = EVALBOOLEAN(newValue);
   else if (strcasecmp_P(field, PSTR("SATwindowminsec")) == 0)  settings.sat.iWindowMinOpenSec = constrain(atoi(newValue), 10, 600);

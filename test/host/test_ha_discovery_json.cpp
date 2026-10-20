@@ -195,8 +195,8 @@ static void partA(OTGWHardwareMode engine, bool first) {
        [&] { return streamOverrideSensorDiscovery(ctx, 27, messageIDToString(static_cast<OTLibMessageID>(27))); });
 
   ctx.device = HaDevice::Sat;
-  for (uint8_t s = 0; s <= 13; s++)         // 13 is out of range
-    call("streamSatSwitchDiscovery", argsf("engine=%s,first=%d,switch=%u", eng, f, s), s <= 12, s <= 12,
+  for (uint8_t s = 0; s <= 14; s++)         // 14 is out of range (13 = follow thermostat, TASK-1259)
+    call("streamSatSwitchDiscovery", argsf("engine=%s,first=%d,switch=%u", eng, f, s), s <= 13, s <= 13,
          [&] { return streamSatSwitchDiscovery(s, ctx); });
   for (uint8_t s = 0; s <= 1; s++)          // 1 is out of range
     call("streamSatSelectDiscovery", argsf("engine=%s,first=%d,select=%u", eng, f, s), s == 0, s == 0,

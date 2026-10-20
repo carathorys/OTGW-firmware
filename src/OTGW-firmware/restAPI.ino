@@ -1,7 +1,7 @@
 /* 
 ***************************************************************************  
 **  Program  : restAPI
-**  Version  : v2.0.0-alpha.441
+**  Version  : v2.0.0-alpha.442
 **
 **  Copyright (c) 2021-2026 Robert van den Breemen
 **     based on Framework ESP8266 from Willem Aandewiel
@@ -1664,6 +1664,8 @@ static void handleSAT(const char words[][API_WORD_LEN], uint8_t wc, HTTPMethod m
       updateSetting("SATinterval", val); handled = true;
     } else if (strcasecmp_P(settingName, PSTR("push_setpoint")) == 0) {
       updateSetting("SATpushsetpoint", val); handled = true;
+    } else if (strcasecmp_P(settingName, PSTR("follow_thermostat")) == 0) {
+      updateSetting("SATfollowthermostat", val); handled = true;  // TASK-1259
     } else if (strcasecmp_P(settingName, PSTR("flame_off_offset")) == 0) {
       updateSetting("SATflameoffset", val); handled = true;
     } else if (strcasecmp_P(settingName, PSTR("force_pwm")) == 0) {
@@ -4035,6 +4037,7 @@ void sendDeviceSettings()
   // these; these GET lines + the knownSettings[] tokens complete the round-trip.
   addBool(F("satforcepwm"),       settings.sat.bForcePWM, "b");
   addBool(F("satpushsetpoint"),   settings.sat.bPushSetpoint, "b");
+  addBool(F("satfollowthermostat"), settings.sat.bFollowThermostat, "b");  // TASK-1259
   addBool(F("satwindowdetect"),   settings.sat.bWindowDetection, "b");
   addInt (F("satwindowminsec"),   settings.sat.iWindowMinOpenSec, "i", 10, 600);
   addBool(F("satthermalcomfort"), settings.sat.bThermalComfort, "b");
@@ -4203,7 +4206,7 @@ static const char* const PROGMEM knownSettings[] = {
   "satblenamefilteringest", "satblenameprefix",  // TASK-895 filter; TASK-1231 made them settable
   "satboilercapacity", "satboilerefficiency", "satboilerratedkw", "satcoefficient", "satcomfortadjust", "satcomforthumidity", "satcomfortmaxoffset",
   "satdeadband", "satdhwenable", "satdhwenabled", "satdhwsetpoint", "satenabled", "satexternaltemp",
-  "satflameoffset", "satflowoffset", "satflushtreshold", "satforcepwm", "sathumiditytimeout",
+  "satflameoffset", "satflowoffset", "satflushtreshold", "satfollowthermostat", "satforcepwm", "sathumiditytimeout",
   "satinterval", "satmanufacturer", "satmaxpressdrop", "satmaxpressure", "satminpressure",
   "satmodsupdelay", "satmodsupoffset", "satmultiarea", "satmultiareacount",
   "satovershootmargin", "satpresetactivity", "satpresetaway", "satpresetcomfort", "satpreseteco",

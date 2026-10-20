@@ -490,6 +490,7 @@ State topics for the 13 SAT boolean switches. Payloads are `"true"` / `"false"`.
 | `sat/window_detection_enable` | Window detection enable state |
 | `sat/force_pwm_enable` | Force-PWM override enable state |
 | `sat/push_setpoint_enable` | Push-setpoint enable state |
+| `sat/follow_thermostat_enable` | Follow-thermostat enable state |
 | `sat/ovp_enabled` | OPV (overshoot-protection value) enabled state |
 | `sat/preset_sync_enable` | Preset-sync enable state |
 | `sat/dhw_enabled` | DHW heating enable state |
@@ -937,6 +938,7 @@ Payloads: `"true"` / `"false"`. Each of these corresponds to one of the 13 auto-
 | `sat/window_detection` | `SATwindowdetect` | Enable automatic window detection |
 | `sat/force_pwm` | `SATforcepwm` | Force PWM mode override |
 | `sat/push_setpoint` | `SATpushsetpoint` | Enable pushing setpoint changes to boiler |
+| `sat/follow_thermostat` | `SATfollowthermostat` | SAT target follows the thermostat room setpoint (MsgID 16) on change; suspends push_setpoint and sends TC=0 once |
 | `sat/ovp_enabled` | `SATovpenabled` | Enable OPV (overshoot-protection value) |
 | `sat/preset_sync` | `SATpresetsync` | Enable HA preset-sync subscription |
 | `sat/dhw_enabled` | `SATdhwenabled` | Enable DHW heating |
@@ -1224,7 +1226,7 @@ When SAT is enabled, the following HA entities are auto-discovered. Entities mar
 |-------------|-----------|------|-------------|
 | `number` | `sat_dhw_setpoint` | °C | DHW setpoint slider (30-60 °C, 0.5 step) |
 
-**Switch Entities (TASK-284, 13 switches):**
+**Switch Entities (TASK-284, 14 switches):**
 
 Each switch publishes its state to `%mqtt_pub_topic%/sat/<name>_enable` and takes commands on `%mqtt_sub_topic%/sat/<command>`. Payloads are literal `"true"` / `"false"` (`pl_on` / `pl_off`).
 
@@ -1239,6 +1241,7 @@ Each switch publishes its state to `%mqtt_pub_topic%/sat/<name>_enable` and take
 | `sat_window_detection_enable` | `sat/window_detection` | `sat/window_detection_enable` | `mdi:window-open-variant` |
 | `sat_force_pwm_enable` | `sat/force_pwm` | `sat/force_pwm_enable` | `mdi:pulse` |
 | `sat_push_setpoint_enable` | `sat/push_setpoint` | `sat/push_setpoint_enable` | `mdi:upload` |
+| `sat_follow_thermostat_enable` | `sat/follow_thermostat` | `sat/follow_thermostat_enable` | `mdi:thermostat` |
 | `sat_ovp_enabled` | `sat/ovp_enabled` | `sat/ovp_enabled` | `mdi:shield-check` |
 | `sat_preset_sync_enable` | `sat/preset_sync` | `sat/preset_sync_enable` | `mdi:sync` |
 | `sat_dhw_enabled` | `sat/dhw_enabled` | `sat/dhw_enabled` | `mdi:water-boiler` |

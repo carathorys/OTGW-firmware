@@ -837,6 +837,53 @@ static const char* satGetPresetName(SATPreset p)
   }
 }
 
+// Follow the thermostat's room setpoint (TASK-1259). Upstream SAT CONF_THERMOSTAT
+// parity: _async_thermostat_changed() copies the thermostat entity's target
+// temperature into SAT's target on every change, and nothing else. The source
+// here is MsgID 16 (TrSet) as written by the thermostat's own frame, which the
+// gateway never substitutes. Edge-triggered on purpose: only a changed TrSet
+// that also differs from the current target is applied, so a TC= push
+// (satpushsetpoint) echoed back by the thermostat is a no-op and a thermostat
+// that ignores the push never ping-pongs. The write mirrors satHandlePreset():
+// RAM only, preset cleared, integral reset. The thermostat's CH-enable bit is
+// not consulted: SAT drives the boiler, and the thermostat's off state already
+// arrives as its frost setpoint in TrSet.
+static float _sat_followLastTrSet = NAN;
+static bool  _sat_followTcReleased = false;   // TC=0 sent once per enable
+
+static void satFollowThermostatTick()
+{
+  if (!settings.sat.bFollowThermostat) {
+    _sat_followLastTrSet = NAN;   // re-arm: the first value after enabling counts as a change
+    _sat_followTcReleased = false;
+    return;
+  }
+  // The thermostat can only lead while no remote override pins its setpoint:
+  // satpushsetpoint's TC= makes it report SAT's own target back (bench
+  // 2026-10-20: a T6 stayed at the pushed 16 C whatever was set on it). Push
+  // is suspended while following (see the TC= block in the control loop) and
+  // any override, including one left by an earlier boot, is released once.
+  if (!_sat_followTcReleased) {
+    if (!hasOTCommandInterface()) return;
+    addCommandToQueue("TC=0", 4, false, 0);
+    state.sat.fLastSentTC   = 0.0f;
+    state.sat.iLastSentTCMs = millis();
+    _sat_followTcReleased = true;
+    SATDebugTln(F("SAT: follow thermostat on, remote override released (TC=0)"));
+  }
+  const float trSet = OTcurrentSystemState.TrSet;   // 0.0 until the first MsgID 16 arrives
+  if (isnan(trSet) || trSet < 5.0f || trSet > 30.0f) return;
+  if (!isnan(_sat_followLastTrSet) && fabsf(trSet - _sat_followLastTrSet) < 0.05f) return;
+  _sat_followLastTrSet = trSet;
+  if (fabsf(trSet - settings.sat.fTargetTemp) < 0.05f) return;   // already the target (e.g. a TC= echo)
+  settings.sat.fTargetTemp = trSet;
+  state.sat.eActivePreset = SAT_PRESET_NONE;
+  state.sat.fPreCustomTemp = 0.0f;
+  state.sat.fPidI = 0.0f;
+  SATDebugTf(PSTR("SAT: thermostat setpoint %.1f -> target (follow), preset cleared, integral reset\r\n"), trSet);
+  satNarratef_P(PSTR("Target %.1f from the thermostat"), trSet);
+}
+
 void satHandlePreset(const char* value)
 {
   SATPreset newPreset = SAT_PRESET_NONE;
@@ -2421,7 +2468,7 @@ void satPublishMQTT()
   static SATShadowB s_solar_gain_enable, s_summer_simmer_enable, s_comfort_adjust_enable;
   static SATShadowB s_thermal_comfort, s_multi_area_enable, s_auto_tune_enable;
   static SATShadowB s_simulation_enable, s_window_detection_enable, s_force_pwm_enable;
-  static SATShadowB s_push_setpoint_enable, s_preset_sync_enable;
+  static SATShadowB s_push_setpoint_enable, s_preset_sync_enable, s_follow_thermostat_enable;
   static SATShadowB s_dhw_enabled, s_dhw_enable, s_pwm_auto_switch_enable;
   // JSON-blob heartbeat counters (BSS zero-init == first-seen sentinel).
   static uint32_t s_pid_attrs_hb        = 0;
@@ -2880,6 +2927,7 @@ void satPublishMQTT()
   publishIfChangedB(F("sat/window_detection_enable"), settings.sat.bWindowDetection,  s_window_detection_enable, true);
   publishIfChangedB(F("sat/force_pwm_enable"),        settings.sat.bForcePWM,         s_force_pwm_enable,        true);
   publishIfChangedB(F("sat/push_setpoint_enable"),    settings.sat.bPushSetpoint,     s_push_setpoint_enable,    true);
+  publishIfChangedB(F("sat/follow_thermostat_enable"), settings.sat.bFollowThermostat, s_follow_thermostat_enable, true);  // TASK-1259
   publishIfChangedB(F("sat/preset_sync_enable"),      settings.sat.bPresetSync,       s_preset_sync_enable,      true);
   publishIfChangedB(F("sat/dhw_enabled"),             settings.sat.bDhwEnabled,       s_dhw_enabled,             true);
   publishIfChangedB(F("sat/dhw_enable"),              settings.sat.bDhwEnable,        s_dhw_enable,              true);
@@ -4311,6 +4359,9 @@ void satControlLoop()
     state.sat.eControlMode = SAT_MODE_CONTINUOUS;
   }
 
+  // Adopt a changed thermostat room setpoint before this tick reads the target (TASK-1259).
+  satFollowThermostatTick();
+
   // --- DHW detection (Task #3): skip CH control when DHW is active ---
   // TASK-800 F5: under simulation, a synthetic DHW draw (F2 dhw_demand event or
   // the light schedule, both managed in satUpdateSimulation) forces DHW-active
@@ -4708,8 +4759,10 @@ void satControlLoop()
       snprintf_P(cmdBuf, sizeof(cmdBuf), PSTR("TP=11:12=%.0f"), finalSetpoint);
       addCommandToQueue(cmdBuf, strlen(cmdBuf), false, 0);
     }
-    // Push SAT target to thermostat display via TC= command (Task #31)
-    if (settings.sat.bPushSetpoint) {
+    // Push SAT target to thermostat display via TC= command (Task #31).
+    // Suspended while the thermostat leads (TASK-1259): the pushed override
+    // would come straight back as the setpoint to follow.
+    if (settings.sat.bPushSetpoint && !settings.sat.bFollowThermostat) {
       satEnqueueIfChangedTC(settings.sat.fTargetTemp);
     }
     _sat_picFailCount = 0;

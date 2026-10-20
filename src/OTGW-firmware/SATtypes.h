@@ -1,7 +1,7 @@
 /*
 ***************************************************************************
 **  Program  : SATtypes.h
-**  Version  : v2.0.0-alpha.441
+**  Version  : v2.0.0-alpha.442
 **
 **  Copyright (c) 2021-2026 Robert van den Breemen
 **
@@ -446,6 +446,7 @@ struct SATSection {
   bool     bDhwEnabled        = false;  // Enable DHW control in standalone/fallback mode
   bool     bDhwEnable         = true;   // TASK-516: master DHW enable (HW= command). Only acted on when boiler reports MsgID 3 HB3=1 (storage tank). Default true keeps boiler-default DHW enabled.
   bool     bPushSetpoint      = false;  // Push SAT target to thermostat display (TC= command)
+  bool     bFollowThermostat  = false;  // TASK-1259: SAT target follows the thermostat room setpoint (MsgID 16) on change
   float    fFlameOffOffset    = 18.0f;  // Flame-off hold offset above return temp during PWM (Python flame_off_setpoint_offset_celsius=18.0): primes the boiler for fast, clean re-ignition
   bool     bWindowDetection   = false;  // Enable window open detection via MQTT
   uint16_t iWindowMinOpenSec  = 60;     // Minimum seconds window must stay open before action

@@ -111,6 +111,7 @@ External inputs arrive via MQTT set commands (`sat/target`, `sat/indoor_temp`, `
   - `MM=<0-100>` - max relative modulation
   - `CH=<0|1>` - central heating enable
   - `TC=<temp>` - push the SAT target to the thermostat display (`bPushSetpoint`)
+  - the reverse direction is `bFollowThermostat` (TASK-1259): a changed thermostat room setpoint (MsgID 16, TrSet) becomes the SAT target; edge-triggered. While on, `bPushSetpoint` is suspended and a `TC=0` releases the thermostat once, because a pushed override would pin the setpoint being followed
   - `SW=<temp>` - DHW setpoint on entering DHW mode
   - `PM=3`, `PM=15`, `PM=48`, `MI=500` (quirk) - boot-time priority messages and polling interval
   - `TP=11:12=<setpoint>` - Immergas quirk

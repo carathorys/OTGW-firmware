@@ -3432,6 +3432,13 @@ bool streamSatSwitchDiscovery(uint8_t switchIdx,
         PSTR("/sat/dhw_enable"),              PSTR("/sat/dhw_enable"),
         PSTR("mdi:water-boiler"));
       break;
+    case 13:
+      // TASK-1259: SAT target follows the thermostat room setpoint (MsgID 16) on change.
+      published = streamSatBoolSwitch(ctx,
+        PSTR("-sat-follow-thermostat-enable"), PSTR("_SAT_Follow_Thermostat"),
+        PSTR("/sat/follow_thermostat"),       PSTR("/sat/follow_thermostat_enable"),
+        PSTR("mdi:thermostat"));
+      break;
     default:
       return false;
   }

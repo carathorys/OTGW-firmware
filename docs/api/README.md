@@ -331,6 +331,7 @@ Update a single device setting.
 | `satpreseteco` | float | 10-22 | `18.0` | Eco preset temperature (°C) |
 | `satpresetaway` | float | 5-18 | `15.0` | Away preset temperature (°C) |
 | `satpwmautoswitch` | bool | - | `true` | Auto-switch between PWM/continuous mode |
+| `satfollowthermostat` | bool | - | `false` | SAT target follows the thermostat's room setpoint (OpenTherm MsgID 16) whenever it changes; a SAT preset set afterwards holds until the next thermostat change. While on, `satpushsetpoint` is suspended and the thermostat's remote override is released once with `TC=0` |
 
 ---
 
