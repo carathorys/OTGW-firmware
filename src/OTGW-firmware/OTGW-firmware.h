@@ -703,6 +703,7 @@ struct OTGWSettings {
   char sHostname[41] = _HOSTNAME;
   char sHTTPpasswd[41] = "";  // HTTP Basic Auth password (empty = no authentication required)
   bool bLEDblink     = true;
+  uint8_t iStatusPixelMode = 2;  // LOLIN RGB status pixel (TASK-1265): 0 = off, 1 = problems only, 2 = always
   bool bDarkTheme    = false;
   bool bMyDEBUG      = false;
   bool bNightlyRestart = false;  // scheduled daily restart for heap recovery

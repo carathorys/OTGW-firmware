@@ -582,9 +582,14 @@ void setup() {
 // RED = not connected, PURPLE = an access point is up (config portal or AP
 // fallback), GREEN = connected. A Ticker (esp_timer task) drives it, because
 // the WiFiManager config portal blocks setup() and loop() never runs then.
-// The Ticker callback is the only writer to the pixel.
+// The Ticker callback is the only writer to the pixel. settings.iStatusPixelMode
+// (TASK-1265) is read on every tick, so a change applies without a reboot:
+// OFF keeps the pixel dark, PROBLEMS keeps it dark while connected.
 #define STATUS_PIXEL_LEVEL     40    // channel brightness 0..255
 #define STATUS_PIXEL_HALF_MS   500   // on/off half period
+#define STATUS_PIXEL_MODE_OFF       0
+#define STATUS_PIXEL_MODE_PROBLEMS  1
+#define STATUS_PIXEL_MODE_ALWAYS    2
 
 static Ticker  statusPixelTicker;
 static uint8_t statusPixelPin      = 0;
@@ -594,12 +599,13 @@ static bool    statusPixelLit      = false;
 static void statusPixelTick() {
   statusPixelLit = !statusPixelLit;
   uint8_t r = 0, g = 0, b = 0;
-  if (statusPixelLit) {
+  const uint8_t mode = settings.iStatusPixelMode;
+  if (statusPixelLit && mode != STATUS_PIXEL_MODE_OFF) {
     if (WiFi.getMode() & WIFI_MODE_AP) {
       r = STATUS_PIXEL_LEVEL;
       b = STATUS_PIXEL_LEVEL;
     } else if (WiFi.status() == WL_CONNECTED) {
-      g = STATUS_PIXEL_LEVEL;
+      if (mode == STATUS_PIXEL_MODE_ALWAYS) g = STATUS_PIXEL_LEVEL;
     } else {
       r = STATUS_PIXEL_LEVEL;
     }

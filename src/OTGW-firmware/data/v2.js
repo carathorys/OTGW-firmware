@@ -1718,6 +1718,7 @@
     webhookcontenttype: { cat: 'webhook', label: 'Content type' },
     webhookpayload:  { cat: 'webhook', label: 'Payload template' },
     ledblink:        { cat: 'behavior', label: 'Blink LED on OT traffic' },
+    statuspixelmode: { cat: 'behavior', label: 'LOLIN status LED', hint: 'On-board RGB LED of the LOLIN S3 Mini' },
     darktheme:       { cat: 'behavior', label: 'Dark theme by default' },
     nightlyrestart:  { cat: 'behavior', label: 'Nightly restart' },
     nightlyrestarthour: { cat: 'behavior', label: 'Restart hour', hint: '0–23' },
@@ -2574,6 +2575,8 @@
     gpiooutputstriggerbit: [[0, 'Flame'], [1, 'CH active'], [2, 'DHW active'], [3, 'Fault']],
     webhooktriggerbit: [[0, 'Flame'], [1, 'CH active'], [2, 'DHW active'], [3, 'Fault']],
     satheatingmode: [[0, 'Comfort'], [1, 'Eco']],
+    // LOLIN RGB status pixel (TASK-1265): 1 = dark while WiFi is connected
+    statuspixelmode: [[0, 'Off'], [1, 'Problems only'], [2, 'Always']],
     // OT-Direct gateway mode — labels from OTDirecttypes.h (NOT the mockup's
     // Off/On-Off/PID list, which was a different, wrong concept).
     otdmode: [[0, 'Bypass'], [1, 'Gateway'], [2, 'Monitor'], [3, 'Master'], [4, 'Loopback']],
