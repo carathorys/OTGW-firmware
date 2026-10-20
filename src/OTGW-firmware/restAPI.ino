@@ -1,7 +1,7 @@
 /* 
 ***************************************************************************  
 **  Program  : restAPI
-**  Version  : v2.0.0-alpha.441
+**  Version  : v2.0.0-alpha.442
 **
 **  Copyright (c) 2021-2026 Robert van den Breemen
 **     based on Framework ESP8266 from Willem Aandewiel
@@ -2231,6 +2231,7 @@ static void handleDebugDump(const char words[][API_WORD_LEN], uint8_t wc, HTTPMe
     je.field(F("settings.hostname"), settings.sHostname);
     je.field(F("settings.http_passwd"), settings.sHTTPpasswd[0] ? "***" : "(not set)");
     je.field(F("settings.led_blink"), settings.bLEDblink);
+    je.field(F("settings.status_pixel_mode"), (int32_t)settings.iStatusPixelMode);
     je.field(F("settings.dark_theme"), settings.bDarkTheme);
     je.field(F("settings.mydebug"), settings.bMyDEBUG);
     je.field(F("settings.nightly_restart"), settings.bNightlyRestart);
@@ -3844,6 +3845,10 @@ void sendDeviceSettings()
   addStr(F("ntphostname"), CSTR(settings.ntp.sHostname), "s", 50);
   addBool(F("ntpsendtime"), settings.ntp.bSendtime, "b");
   addBool(F("ledblink"), settings.bLEDblink, "b");
+#if HAS_STATUS_PIXEL
+  // TASK-1265: LOLIN RGB status pixel (0=off, 1=problems only, 2=always).
+  addInt(F("statuspixelmode"), (int)settings.iStatusPixelMode, "i", 0, 2);
+#endif
   addBool(F("darktheme"), settings.bDarkTheme, "b");
   addBool(F("nightlyrestart"), settings.bNightlyRestart, "b");
   addInt(F("nightlyrestarthour"), (int)settings.iRestartHour, "i", 0, 23);
@@ -4195,6 +4200,9 @@ static const char* const PROGMEM knownSettings[] = {
   "otdkp", "otdmode", "otdmsginterval", "otdoffset", "otdopenbypass", "otdroomcomp",
   "otdroomsetpoint", "otdsetbacktemp", "otdsetbacktimeout", "otdsummermode",
   "otdventenable", "otdventsetpoint",
+#if HAS_STATUS_PIXEL
+  "statuspixelmode",  // TASK-1265 LOLIN RGB status pixel mode
+#endif
   "otgwcommandenable", "otgwcommands",
   "s0counterdebouncetime", "s0counterenabled", "s0counterinterval", "s0counterpin", "s0counterpulsekw",
   "satareaweight0", "satareaweight1", "satareaweight2", "satareaweight3",

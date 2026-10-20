@@ -39,6 +39,7 @@ static void dumpDebugInfo() {
     Debugf(PSTR("hostname: %s\r\n"), settings.sHostname);
     Debugf(PSTR("http_passwd: %s\r\n"), settings.sHTTPpasswd[0] ? "***" : "(not set)");
     Debugf(PSTR("led_blink: %s\r\n"), settings.bLEDblink ? "true" : "false");
+    Debugf(PSTR("status_pixel_mode: %u\r\n"), (unsigned)settings.iStatusPixelMode);
     Debugf(PSTR("dark_theme: %s\r\n"), settings.bDarkTheme ? "true" : "false");
     Debugf(PSTR("mydebug: %s\r\n"), settings.bMyDEBUG ? "true" : "false");
     Debugf(PSTR("nightly_restart: %s\r\n"), settings.bNightlyRestart ? "true" : "false");

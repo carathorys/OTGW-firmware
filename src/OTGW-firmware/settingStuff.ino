@@ -1,7 +1,7 @@
 /*
 ***************************************************************************  
 **  Program  : settingsStuff
-**  Version  : v2.0.0-alpha.441
+**  Version  : v2.0.0-alpha.442
 **
 **  Copyright (c) 2021-2026 Robert van den Breemen
 **     based on Framework ESP8266 from Willem Aandewiel
@@ -302,6 +302,7 @@ void writeSettings(bool show)
   writeJsonStringKV(file, F("NTPhostname"), settings.ntp.sHostname);
   writeJsonBoolKV(file, F("NTPsendtime"), settings.ntp.bSendtime);
   writeJsonBoolKV(file, F("LEDblink"), settings.bLEDblink);
+  writeJsonIntKV(file, F("StatusPixelMode"), settings.iStatusPixelMode);
   writeJsonBoolKV(file, F("darktheme"), settings.bDarkTheme);
   writeJsonBoolKV(file, F("nightlyrestart"), settings.bNightlyRestart);
   writeJsonIntKV(file, F("nightlyrestarthour"), settings.iRestartHour);
@@ -665,6 +666,7 @@ void readSettings(bool show)
     Debugf(PSTR("NPT hostname          : %s\r\n"), CSTR(settings.ntp.sHostname));
     Debugf(PSTR("NPT send time         : %s\r\n"), CBOOLEAN(settings.ntp.bSendtime));
     Debugf(PSTR("Led Blink             : %s\r\n"), CBOOLEAN(settings.bLEDblink));
+    Debugf(PSTR("Status Pixel Mode     : %d (0=off,1=problems,2=always)\r\n"), settings.iStatusPixelMode);
     Debugf(PSTR("Nightly Restart       : %s (hour=%d)\r\n"), CBOOLEAN(settings.bNightlyRestart), settings.iRestartHour);
     Debugf(PSTR("Board Mode (ADR-127)  : %d (0=auto,1=pic,2=otdirect,3=pic-pro)\r\n"), settings.iBoardMode);
     Debugf(PSTR("GPIO Sensors          : %s\r\n"), CBOOLEAN(settings.sensors.bEnabled));
@@ -861,6 +863,7 @@ void updateSetting(const char *field, const char *newValue)
   }
   else if (strcasecmp_P(field, PSTR("NTPsendtime"))==0)    settings.ntp.bSendtime = EVALBOOLEAN(newValue);
   else if (strcasecmp_P(field, PSTR("LEDblink"))==0)      settings.bLEDblink = EVALBOOLEAN(newValue);
+  else if (strcasecmp_P(field, PSTR("StatusPixelMode"))==0)    { int m = atoi(newValue); settings.iStatusPixelMode = (m >= 0 && m <= 2) ? (uint8_t)m : 2; }  // TASK-1265
   else if (strcasecmp_P(field, PSTR("darktheme"))==0)     settings.bDarkTheme = EVALBOOLEAN(newValue);
   else if (strcasecmp_P(field, PSTR("nightlyrestart"))==0)     settings.bNightlyRestart = EVALBOOLEAN(newValue);
   else if (strcasecmp_P(field, PSTR("nightlyrestarthour"))==0) { int h = atoi(newValue); settings.iRestartHour = (h >= 0 && h <= 23) ? h : 4; }
